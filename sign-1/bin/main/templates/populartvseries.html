@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Popular TV Series</title>
+    <!-- JavaScript 코드 포함 -->
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        async function searchPopularTvSeries() {
+            const options = {
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer 여기에_당신의_인증_토큰을_넣어주세요',
+                    'accept': 'application/json'
+                }
+            };
+
+            const url = 'https://api.themoviedb.org/3/discover/tv?include_adult=false&language=en-US&page=1&sort_by=popularity.desc';
+
+            try {
+                const response = await fetch(url, options);
+                const data = await response.json();
+
+                let tvSeries = data['results'];
+                const cardList = document.querySelector('.card-list');
+                cardList.innerHTML = '';
+
+                tvSeries.forEach((series) => {
+                    let _name = series['name'];
+                    let _overview = series['overview'];
+                    let _poster_path = series['poster_path'];
+                    let _vote_average = series['vote_average'];
+                    let _id = series['id'];
+
+                    let temp_html = `
+                        <div class="tv-series-card" data-id="${_id}">
+                            <img src="https://image.tmdb.org/t/p/w500${_poster_path}">
+                            <h3>${_name}</h3>
+                            <p>${_overview}</p>
+                            <p>Rating: ${_vote_average}</p>
+                        </div>
+                    `;
+                    cardList.insertAdjacentHTML('beforeend', temp_html);
+                });
+
+                const tvSeriesCards = document.querySelectorAll('.tv-series-card');
+                tvSeriesCards.forEach(card => {
+                    card.addEventListener('click', function() {
+                        let seriesId = this.getAttribute('data-id');
+                        alert(`TV Series ID: ${seriesId}`);
+                    });
+                });
+
+            } catch (error) {
+                console.error('Error fetching TV series:', error);
+            }
+        }
+        /*]]>*/
+    </script>
+</head>
+<body>
+
+
+<div class="card-list">
+
+<h1>인기 있는 TV 시리즈</h1>
+
+<button onclick="searchPopularTvSeries()">TV 시리즈 검색</button>
+
+<div class="card-list">
+    <div th:each="tvSeries : ${populartvseries}" class="tv-series-card" th:data-id="${tvSeries.id}">
+        <img th:src="'https://image.tmdb.org/t/p/w500' + ${tvSeries.poster_path}" alt="TV Series Poster">
+        <h3 th:text="${tvSeries.name}"></h3>
+        <p th:text="${tvSeries.overview}"></p>
+        <p th:text="'평점: ' + ${tvSeries.vote_average}"></p>
+    </div>
+</div>
+
+<!-- 여기에 JavaScript 코드를 추가해 주세요 -->
+
+</body>
+</html>

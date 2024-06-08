@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie List</title>
+
+    <!-- JavaScript 코드 포함 -->
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        async function searchMovies() {
+            const options = {
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIyMmU4OWY5MDA0MjNhMGRiODI3MmU2MTI4OTA1ZDNiZCIsInN1YiI6IjY1YjEwOWViOGMzMTU5MDE1MjMyMGQ4ZCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.hOI2LuKHRVwCjfl93ecWTd2tBGzBAoaG3M6m48zDnA8',
+                    'accept': 'application/json'
+                }
+            };
+
+            const url = 'https://api.themoviedb.org/3/movie/top_rated?language=en-US&page=1';
+
+            try {
+                const response = await fetch(url, options);
+                const data = await response.json();
+
+                let rows = data['results'];
+                const cardList = document.querySelector('.card-list');
+                cardList.innerHTML = '';
+
+                rows.forEach((a) => {
+                    let _title = a['title'];
+                    let _overview = a['overview'];
+                    let _poster_path = a['poster_path'];
+                    let _vote_average = a['vote_average'];
+                    let _id = a['id'];
+
+                    let temp_html = `
+                        <div class="movie-card" data-id="${_id}">
+                            <img src="https://image.tmdb.org/t/p/w500${_poster_path}">
+                            <h3>${_title}</h3>
+                            <p>${_overview}</p>
+                            <p>Rating: ${_vote_average}</p>
+                        </div>
+                    `;
+                    cardList.insertAdjacentHTML('beforeend', temp_html);
+                });
+
+                const movieCards = document.querySelectorAll('.movie-card');
+                movieCards.forEach(card => {
+                    card.addEventListener('click', function() {
+                        let movieId = this.getAttribute('data-id');
+                        alert(`Movie ID: ${movieId}`);
+                    });
+                });
+
+            } catch (error) {
+                console.error('Error fetching movies:', error);
+            }
+        }
+        /*]]>*/
+    </script>
+</head>
+<body>
+
+<h1>Top Rated Movies</h1>
+
+<button onclick="searchMovies()">Search Movies</button>
+
+<div class="card-list">
+    <!-- Thymeleaf 반복문을 이용하여 영화 정보 표시 -->
+    <div th:each="movie : ${movies}" class="movie-card" th:data-id="${movie.id}">
+        <img th:src="'https://image.tmdb.org/t/p/w500' + ${movie.poster_path}" alt="Movie Poster">
+        <h3 th:text="${movie.title}"></h3>
+        <p th:text="${movie.overview}"></p>
+        <p th:text="'Rating: ' + ${movie.vote_average}"></p>
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contents List</title>
+</head>
+<body>
+
+<h1>Contents List</h1>
+
+<!-- 결과를 출력하는 부분 -->
+<table>
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Release Date</th>
+            <th>Overview</th>
+            <!-- 추가 필요한 열들 -->
+        </tr>
+    </thead>
+    <tbody>
+        <!-- Thymeleaf 반복문을 사용하여 데이터를 출력 -->
+        <tr th:each="contents : ${contentsList}">
+            <td th:text="${contents.title}"></td>
+            <td th:text="${contents.release_date}"></td>
+            <td th:text="${contents.overview}"></td>
+            <!-- 추가 필요한 열들 -->
+        </tr>
+    </tbody>
+</table>
+
+</body>
+</html>

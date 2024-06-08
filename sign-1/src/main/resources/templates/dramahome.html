@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Movie DB API Example</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        h1, h2 {
+            text-align: center;
+        }
+
+        button {
+            margin: 10px;
+            padding: 10px;
+            font-size: 16px;
+        }
+
+        #searchInput {
+            padding: 10px;
+            font-size: 16px;
+        }
+
+        #resultContainer {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>The Movie DB API Example</h1>
+
+    <div>
+        <label for="searchInput">Search:</label>
+        <input type="text" id="searchInput">
+        <button onclick="getMoviesByTitle()">Search Movies by Title</button>
+        <button onclick="getMoviesByGenre(28)">Search Genre Movies</button>
+        <button onclick="getTVSeriesByTitle()">Search TV Series by Title</button>
+        <button onclick="getTVSeriesByGenre(18)">Search Drama TV Series</button>
+    </div>
+
+    <div id="resultContainer"></div>
+
+    <script>
+        var serverBaseUrl = "http://localhost:8026";
+
+        function getMoviesByTitle() {
+            var title = document.getElementById("searchInput").value;
+            makeRequest("/api/movies/byTitle?title=" + title, "Movies by Title");
+        }
+
+        function getMoviesByGenre(genreId) {
+            makeRequest("/api/movies/byGenre?genreId=" + genreId, "Movies by Genre");
+        }
+
+        function getTVSeriesByTitle() {
+            var title = document.getElementById("searchInput").value;
+            makeRequest("/api/tvSeries/byTitle?title=" + title, "TV Series by Title");
+        }
+
+        function getTVSeriesByGenre(genreId) {
+            makeRequest("/api/tvSeries/byGenre?genreId=" + genreId, "TV Series by Genre");
+        }
+
+        function makeRequest(url, resultTitle) {
+            var xhr = new XMLHttpRequest();
+
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4) {
+                    if (xhr.status == 200) {
+                        try {
+                            var response = JSON.parse(xhr.response);
+                            displayResult(resultTitle, response);
+                        } catch (error) {
+                            console.error("Error parsing JSON:", error);
+                            console.error("Response:", xhr.response);
+                            displayResult(resultTitle, { error: "Error parsing JSON" });
+                        }
+                    } else {
+                        console.error("Request failed with status: " + xhr.status);
+                        console.error(xhr.responseText);
+                        displayResult(resultTitle, { error: "Request failed" });
+                    }
+                }
+            };
+
+            xhr.open("GET", serverBaseUrl + url, true);
+            xhr.responseType = "text";
+            xhr.send();
+        }
+
+        function displayResult(title, data) {
+            var resultContainer = document.getElementById("resultContainer");
+            // 결과를 표시하기 전에 기존 내용을 초기화합니다.
+            resultContainer.innerHTML = "";
+
+            if (data.error) {
+                resultContainer.innerHTML = "<h2>" + title + "</h2><p>Error: " + data.error + "</p>";
+            } else {
+                // 결과를 순회하며 표시합니다.
+                resultContainer.innerHTML = "<h2>" + title + "</h2>";
+                for (var i = 0; i < data.results.length; i++) {
+                    var result = data.results[i];
+                    resultContainer.innerHTML += "<p>" + result.title + " - " + result.release_date + " - " + result.vote_average + "</p>";
+                }
+            }
+        }
+    </script>
+</body>
+</html>

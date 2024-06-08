@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Movie DB API Example</title>
+</head>
+<body>
+
+    <h1>The Movie DB API Example</h1>
+
+    <button onclick="getMoviesByTitle('Inception')">Get Movies by Title</button>
+    <label for="genreSelect">Select Genre:</label>
+    <select id="genreSelect">
+        <!-- Options will be dynamically populated using JavaScript -->
+    </select>
+    <button onclick="getMoviesBySelectedGenre()">Get Movies by Selected Genre</button>
+    <button onclick="getTVSeriesByTitle('Breaking Bad')">Get TV Series by Title</button>
+    <button onclick="getTVSeriesByGenre(18)">Get Drama TV Series</button>
+
+    <script>
+        var serverBaseUrl = "http://localhost:8026";
+
+        function getMoviesByTitle(title) {
+            var xhr = new XMLHttpRequest();
+
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4) {
+                    if (xhr.status == 200) {
+                        var response = JSON.parse(xhr.responseText);
+                        console.log("Movies by Title:", response);
+                    } else {
+                        console.error("Request failed with status: " + xhr.status);
+                        console.error(xhr.responseText);
+                    }
+                }
+            };
+
+            xhr.open("GET", serverBaseUrl + "/api/movies/byTitle?title=" + title, true);
+            xhr.responseType = "json";
+            xhr.send();
+        }
+
+        function fetchGenres() {
+            var xhr = new XMLHttpRequest();
+
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4) {
+                    if (xhr.status == 200) {
+                        var genres = JSON.parse(xhr.responseText);
+                        populateGenreSelect(genres);
+                    } else {
+                        console.error("Failed to fetch genres with status: " + xhr.status);
+                        console.error(xhr.responseText);
+                    }
+                }
+            };
+
+            xhr.open("GET", "https://api.themoviedb.org/3/genre/movie/list?language=ko", true);
+            xhr.responseType = "json";
+            xhr.send();
+        }
+
+        function populateGenreSelect(genres) {
+            var genreSelect = document.getElementById("genreSelect");
+
+            genres.genres.forEach(function(genre) {
+                var option = document.createElement("option");
+                option.value = genre.id;
+                option.text = genre.name;
+                genreSelect.add(option);
+            });
+        }
+
+        function getMoviesBySelectedGenre() {
+            var selectedGenreId = document.getElementById("genreSelect").value;
+            makeRequest("/api/movies/byGenre?genreId=" + selectedGenreId, "Movies by Genre");
+        }
+
+        function makeRequest(url, resultTitle) {
+            // Remaining code for making API request and handling response
+            // ...
+        }
+
+        function getTVSeriesByTitle(title) {
+            var xhr = new XMLHttpRequest();
+
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4) {
+                    if (xhr.status == 200) {
+                        var response = JSON.parse(xhr.responseText);
+                        console.log("TV Series by Title:", response);
+                    } else {
+                        console.error("Request failed with status: " + xhr.status);
+                        console.error(xhr.responseText);
+                    }
+                }
+            };
+
+            xhr.open("GET", serverBaseUrl + "/api/tvSeries/byTitle?title=" + title, true);
+            xhr.responseType = "json";
+            xhr.send();
+        }
+
+        function getTVSeriesByGenre(genreId) {
+            var xhr = new XMLHttpRequest();
+
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4) {
+                    if (xhr.status == 200) {
+                        var response = JSON.parse(xhr.responseText);
+                        console.log("TV Series by Genre:", response);
+                    } else {
+                        console.error("Request failed with status: " + xhr.status);
+                        console.error(xhr.responseText);
+                    }
+                }
+            };
+
+            xhr.open("GET", serverBaseUrl + "/api/tvSeries/byGenre?genreId=" + genreId, true);
+            xhr.responseType = "json";
+            xhr.send();
+        }
+    </script>
+</body>
+</html>
